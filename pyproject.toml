@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SCMeTA"
+version = "0.1.0"
+authors = [
+  { name="Estrella Pan", email="acedamic@estrellaxd.com" },
+]
+description = "A small example package"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://sc-meta.com"
+"Bug Tracker" = "https://github.com/SCMeTA/SCMeTA/issues"
