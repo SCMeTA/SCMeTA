@@ -1,19 +1,23 @@
 from configparser import ConfigParser
-from pathlib import PureWindowsPath
+from pathlib import Path
 
 import platform
 
+from .default import DEFAULT_CONFIG
+
+CONFIG_DIR = Path("~/.scmeta").expanduser()
+print(CONFIG_DIR.absolute())
+CONFIG_PATH = CONFIG_DIR / "config.ini"
 SYSTEM = platform.system()
 
-config_path = "config/config.ini"
-
-if SYSTEM == "Windows":
-    config_path = PureWindowsPath(config_path)
-
-config = ConfigParser()
-config.read(config_path)
-PARAMETERS = config["PARAMETERS"]
-METABOLITE = config["METABOLITE"]
+def get_config():
+    parser = ConfigParser()
+    if not CONFIG_PATH.exists():
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        with open(CONFIG_PATH, "w") as f:
+            f.write(DEFAULT_CONFIG)
+    parser.read(CONFIG_PATH)
+    return parser
 
 
 class Parameters:
@@ -38,5 +42,8 @@ class Parameters:
         return self.__getattr__(item)
 
 
-PARAMETERS = Parameters(PARAMETERS)
-METABOLITE = Parameters(METABOLITE)
+config = get_config()
+
+
+PARAMETERS = Parameters(config["PARAMETERS"])
+METABOLITE = Parameters(config["METABOLITE"])
