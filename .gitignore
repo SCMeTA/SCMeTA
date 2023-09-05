@@ -162,3 +162,5 @@ cython_debug/
 # macOS
 #  No default global gitignore on macOS
 .DS_Store
+
+poetry.lock
