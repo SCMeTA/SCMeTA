@@ -1,22 +1,30 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "SCMeTA"
 version = "0.1.0"
-authors = [
-  { name="Estrella Pan", email="acedamic@estrellaxd.com" },
-]
-description = "A small example package"
+description = "A python package for single-cell metabolism analysis."
+authors = ["EstrellaXD <estrellaxd05@gmail.com>"]
+license = "GPL-3.0-or-later"
 readme = "README.md"
-requires-python = ">=3.9"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Operating System :: OS Independent",
+homepage = "https://www.sc-meta.org/"
+repository = "https://github.com/SCMeTA/SCMeTA"
+documentation = "https://www.sc-meta.org/"
+keywords = ["single-cell", "metabolism", "analysis"]
+packages = [
+    { include = "SCMeTA", from = "." },
 ]
 
-[project.urls]
-"Homepage" = "https://sc-meta.com"
-"Bug Tracker" = "https://github.com/SCMeTA/SCMeTA/issues"
+[tool.poetry.dependencies]
+python = ">=3.9, <3.13"
+pandas = "^2.1.0"
+pyrawtools = "^0.2.3"
+numpy = "^1.25.2"
+matplotlib = "^3.7.2"
+combat = "^0.3.3"
+scipy = "^1.11.2"
+polars = "^0.19.1"
+scikit-learn = "^1.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
