@@ -6,7 +6,6 @@ import platform
 from .default import DEFAULT_CONFIG
 
 CONFIG_DIR = Path("~/.scmeta").expanduser()
-print(CONFIG_DIR.absolute())
 CONFIG_PATH = CONFIG_DIR / "config.ini"
 SYSTEM = platform.system()
 
