@@ -1,0 +1,16 @@
+# SCMeTA
+SCMeTA
+# Data Process Package
+pyRawTools
+numpy
+pandas
+scipy
+scikit-learn
+umap-learn
+polars
+combat
+# Data Visualization Package
+matplotlib
+
+# Jupyter Notebook
+jupyterlab
