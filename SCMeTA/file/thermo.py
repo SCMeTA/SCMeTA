@@ -3,7 +3,7 @@ import os
 
 from pyRawTools import MSLoader
 
-from .format import MSData
+from .format import SCData
 from SCMeTA.config import SYSTEM
 
 
@@ -25,8 +25,8 @@ def load_raw(path):
     return raw
 
 
-def load_thermo_data(name, path) -> MSData:
-    data = MSData(name)
+def load_thermo_data(name, path) -> SCData:
+    data = SCData(name)
     if SYSTEM == "Windows" and path.endswith(".txt"):
         data.raw = load_txt(path)
     elif SYSTEM == "Linux" or SYSTEM == "Darwin" and path.lower().endswith(".raw"):

@@ -35,7 +35,7 @@ def path_from_database(path: str) -> str:
     return os.path.join(base_path, path)
 
 
-def read_files_in_parallel(paths, names = None, data_type: str = "thermo") -> dict[str, MSData]:
+def read_files_in_parallel(paths, names = None, data_type: str = "thermo") -> dict[str, SCData]:
     if names is None:
         names = [get_name_from_path(path) for path in paths]
     args = [(name, path) for name, path in zip(names, paths)]
@@ -46,7 +46,7 @@ def read_files_in_parallel(paths, names = None, data_type: str = "thermo") -> di
 
 def load_data(
     path: str | dict, name: str | None = None, data_type: str = "thermo"
-) -> dict[str, MSData]:
+) -> dict[str, SCData]:
     if isinstance(path, str):
         if os.path.isdir(path):
             files = os.listdir(path)

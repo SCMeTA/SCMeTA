@@ -3,7 +3,7 @@ import logging
 
 import pandas as pd
 
-from SCMeTA.file import MSData
+from SCMeTA.file import SCData
 from SCMeTA.method import (
     filter_occ,
     to_mat,
@@ -25,7 +25,7 @@ from SCMeTA.accelerate import MultiProcessing
 logger = logging.getLogger(__name__)
 
 
-def _filter_occ(data: MSData, resolution: float, count: int):
+def _filter_occ(data: SCData, resolution: float, count: int):
     data.process = filter_occ(data.raw.copy(), resolution, count)
 
 
@@ -33,7 +33,7 @@ class Process:
     def __init__(
         self, ref_mz: float = 760.58, mz1: float = 760.58, mz2: float = 732.55
     ):
-        self.data: dict[str, MSData] = {}
+        self.data: dict[str, SCData] = {}
 
         self.__mz1: float = mz1
         self.__mz2: float = mz2
@@ -88,11 +88,11 @@ class Process:
                     file_name = os.path.basename(file).split(".")[0]
                     data = pd.read_csv(os.path.join(path, file), index_col=0)
                     data.columns = [float(i) for i in data.columns]
-                    self.data[file_name] = MSData(name=file_name, cell_mat=data)
+                    self.data[file_name] = SCData(name=file_name, cell_mat=data)
         else:
             data = pd.read_csv(path, index_col=0)
             data.columns = [float(i) for i in data.columns]
-            self.data[file_name] = MSData(name=file_name, cell_mat=data)
+            self.data[file_name] = SCData(name=file_name, cell_mat=data)
 
     def filter_occ(
         self,
@@ -231,7 +231,7 @@ class Process:
         logger.info("Filter out the mat data.")
 
     def normalize(self,
-                  data: dict[str, MSData],
+                  data: dict[str, SCData],
                   normalize_method: list[str],
                   file_name: str | None = None):
         if file_name is None:
@@ -246,7 +246,7 @@ class Process:
         logger.info("Normalization finished.")
 
     def fill(self,
-             data: dict[str, MSData],
+             data: dict[str, SCData],
              file_name: str | None = None,
              fillna_method: str = "knn"
              ):
@@ -259,7 +259,7 @@ class Process:
             )
         logger.info("Fillna finished.")
 
-    def combat(self, data: dict[str, MSData], tag_list: list[str], file_name: str | None = None):
+    def combat(self, data: dict[str, SCData], tag_list: list[str], file_name: str | None = None):
         data = combat_batch_correction(data)
         return data
 
@@ -413,7 +413,7 @@ class Process:
 
     def post_process(
             self,
-            data: dict[str, MSData] = None,
+            data: dict[str, SCData] = None,
             normalize_method=None,
             fillna_method: str = "none",
             tags: list[str] = None,

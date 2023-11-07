@@ -1,10 +1,10 @@
 import pandas as pd
 from combat.pycombat import pycombat
 
-from SCMeTA.file import MSData
+from SCMeTA.file import SCData
 
 
-def combat_batch_correction(data: dict[str, MSData], tags: list[str]) -> dict[str, MSData]:
+def combat_batch_correction(data: dict[str, SCData], tags: list[str]) -> dict[str, SCData]:
     # 获取细胞组名和数据框列表
     d_list = []
     for key, value in data.items():

@@ -4,7 +4,7 @@ import pandas as pd
 
 
 @dataclass
-class MSData:
+class SCData:
     name: str
     raw: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
     offset: float = 0
