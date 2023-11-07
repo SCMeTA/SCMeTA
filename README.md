@@ -16,13 +16,13 @@ pip install scmeta
 
 ```python
 
-from SCMeTA import SCProcess
+from SCMeTA import Process
 
-sc = SCProcess()
+sc = Process()
 
 # Load data
 
-sc.load("data/pancreas.RAW")
+sc.load("data/example.RAW")
 
 # Data process
 
@@ -31,5 +31,13 @@ sc.process()
 sc.post_process()
 
 ```
+
+## Documentation
+
+The official documentation is hosted on Read the Docs: https://sc-meta.com/
+
+## License
+
+SCMeTA is licensed under the GPLv3 license. See the LICENSE file for more details.
 
 

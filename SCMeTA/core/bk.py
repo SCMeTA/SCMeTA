@@ -1,11 +1,11 @@
 from bokeh.io import output_notebook
 
 from SCMeTA.plot.Bokeh import heatmap
-from SCMeTA.file import MSData
+from SCMeTA.file import SCData
 
 
 class BokehPlot:
-    def __init__(self, data: dict[str, MSData]):
+    def __init__(self, data: dict[str, SCData]):
         self.__data = [d.cell_mat for d in data.values()]
         self.__data_count = len(data)
         self.__cell_range = {

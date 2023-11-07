@@ -8,7 +8,7 @@ from matplotlib.figure import Figure, Axes
 from SCMeTA.plot.Mpl import scatter, heatmap, line, radar, volcano, bar, box
 from SCMeTA.method import round_rows, round_columns, k_w_test
 from SCMeTA.method.machine_learning import discriminate, to_mat
-from SCMeTA.file import MSData
+from SCMeTA.file import SCData
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ FIGURE_SIZE = {
 
 class MplPlot:
     def __init__(self):
-        self.__data: dict[str, MSData] | None = None
+        self.__data: dict[str, SCData] | None = None
         self.__mat: dict[str, pd.DataFrame] = {}
         self.__cell_range: dict[str, int] = {}
 
@@ -32,7 +32,7 @@ class MplPlot:
         self.__cell_range[name] = mat.shape[0]
         logger.info(f"Successfully load {name}.")
 
-    def load(self, data: dict[str, MSData] | None = None, path: str | None = None):
+    def load(self, data: dict[str, SCData] | None = None, path: str | None = None):
         if path is not None:
             # Load Cell Mat from dir or file
             if os.path.isdir(path):
@@ -133,6 +133,7 @@ class MplPlot:
         dict_data = to_mat(full_data, self.__cell_range, n_components=1)
         h_statistic, p_value = k_w_test(dict_data)
         box(dict_data, ax=ax, h_statistic=h_statistic, p_value=p_value)
+        return dict_data
 
     # def radar(self, ax=None, mz_list: pd.DataFrame | None = None):
     #     if ax is None:
