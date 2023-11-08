@@ -1,5 +1,3 @@
-# SCMeTA
-SCMeTA
 # Data Process Package
 pyRawTools
 pythonnet

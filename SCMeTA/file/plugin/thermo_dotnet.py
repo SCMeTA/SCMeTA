@@ -4,10 +4,17 @@ import numpy as np
 import pandas as pd
 import tqdm
 
+from pythonnet import load
+load("coreclr")
+
 import clr
 from System import String
 
-sys.path.append("SCMeTA/file/plugin/dll")
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+sys.path.append(os.path.join(dir_path, "dll"))
+
+
 clr.AddReference("ThermoFisher.CommonCore.Data")
 clr.AddReference("ThermoFisher.CommonCore.RawFileReader")
 import ThermoFisher

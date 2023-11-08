@@ -166,3 +166,4 @@ cython_debug/
 poetry.lock
 
 /Data
+test.*
