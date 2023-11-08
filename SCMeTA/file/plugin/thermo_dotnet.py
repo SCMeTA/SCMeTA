@@ -480,6 +480,6 @@ class RawFileReader(object):
         """This function returns the mass list of full scan."""
         scan_range = range(self.FirstSpectrumNumber, self.LastSpectrumNumber + 1)
         scan_mass_list = [self.GetCentroidMassListFromScanNum(scan) for scan in tqdm.tqdm(scan_range)]
-        return pd.concat(scan_mass_list)
+        return pd.concat(scan_mass_list).set_index("Scan")
 
 
