@@ -1,5 +1,7 @@
 # Data Process Package
 pyRawTools
+tqdm
+pythonnet
 numpy
 pandas
 scipy

@@ -2,6 +2,8 @@
 SCMeTA
 # Data Process Package
 pyRawTools
+pythonnet
+tqdm
 numpy
 pandas
 scipy

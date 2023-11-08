@@ -4,6 +4,8 @@ import os
 from pyRawTools import MSLoader
 
 from .format import SCData
+from .plugin import RawFileReader
+
 from SCMeTA.config import SYSTEM
 
 
@@ -14,7 +16,7 @@ def load_txt(path):
     return raw
 
 
-def load_raw(path):
+def load_darwin(path):
     loader = MSLoader()
     if os.environ.get("CONTAINER"):
         temp_dir = "/ramdisk"
@@ -25,12 +27,26 @@ def load_raw(path):
     return raw
 
 
+def load_dotnet(path):
+    file = RawFileReader(path)
+    raw = file.GetFullScanMassList()
+    file.Close()
+    return raw
+
+
+IMPORT_FUNC = {
+    "Darwin": load_darwin,
+    "Windows": load_dotnet,
+    "Linux": load_dotnet,
+}
+
+
 def load_thermo_data(name, path) -> SCData:
     data = SCData(name)
-    if SYSTEM == "Windows" and path.endswith(".txt"):
+    if path.lower().endswith(".raw"):
+        data.raw = IMPORT_FUNC[SYSTEM](path)
+    elif path.lower().endswith(".txt"):
         data.raw = load_txt(path)
-    elif SYSTEM == "Linux" or SYSTEM == "Darwin" and path.lower().endswith(".raw"):
-        data.raw = load_raw(path)
     else:
         raise FileNotFoundError("File not supported")
     return data
