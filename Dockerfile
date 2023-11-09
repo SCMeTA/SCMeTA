@@ -19,7 +19,7 @@ RUN curl -L https://packages.microsoft.com/config/debian/12/packages-microsoft-p
 
 RUN apt-get update \
     && apt-get install -y \
-    dotnet-sdk-6.0 \
+    dotnet-runtime-6.0 \
     && rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Install python dependencies

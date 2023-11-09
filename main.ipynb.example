@@ -2,14 +2,16 @@
  "cells": [
   {
    "cell_type": "markdown",
-   "source": [
-    "## Data Process\n",
-    "\n",
-    "[Documentation](https://sc-meta.com)\n",
-   ],
    "metadata": {
     "collapsed": false
-   }
+   },
+   "source": [
+    "## SCMeTA Data Process example pipeline\n",
+    "\n",
+    "This is the example of SCMeTA Data Process pipeline.\n",
+    "\n",
+    "More details can be found in the [documentation](https://sc-meta.com)."
+   ]
   },
   {
    "cell_type": "code",
@@ -21,40 +23,50 @@
    "source": [
     "from SCMeTA import Process\n",
     "# Import Data\n",
-    "ms = Process(ref_mz=760.58)\n",
+    "sc = Process(ref_mz=760.58)\n",
+    "# Path can be a file or a folder\n",
     "path = \"path/to/data/\"\n",
-    "ms.load(path)\n",
-    "ms.pre_process()"
+    "sc.load(path)\n",
+    "\n",
+    "# Pre-process is necessary\n",
+    "sc.pre_process()"
    ]
   },
   {
    "cell_type": "code",
    "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
    "outputs": [],
    "source": [
     "# Process Data\n",
-    "ms.process()"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+    "sc.process()"
+   ]
   },
   {
    "cell_type": "code",
    "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
    "outputs": [],
    "source": [
     "# Post-Process Data\n",
     "normalize_method = [\"log\", \"z-score\"]\n",
-    "data = ms.post_process(normalize_method=normalize_method)"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+    "data = sc.post_process(normalize_method=normalize_method)\n",
+    "\n",
+    "# Optional\n",
+    "# Save Data\n",
+    "# sc.save(data, path)"
+   ]
   },
   {
    "cell_type": "code",
    "execution_count": null,
+   "metadata": {
+    "collapsed": false
+   },
    "outputs": [],
    "source": [
     "from SCMeTA import Plot\n",
@@ -62,10 +74,7 @@
     "plot = Plot()\n",
     "plot.load(data)\n",
     "plot.scatter_select()"
-   ],
-   "metadata": {
-    "collapsed": false
-   }
+   ]
   }
  ],
  "metadata": {
