@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "SCMeTA"
-version = "0.2.0"
+version = "0.2.2"
 description = "A python package for single-cell metabolism analysis."
 authors = ["EstrellaXD <estrellaxd05@gmail.com>"]
 license = "GPL-3.0-or-later"
