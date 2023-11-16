@@ -260,7 +260,7 @@ class Process:
         logger.info("Fillna finished.")
 
     def combat(self, data: dict[str, SCData], tag_list: list[str], file_name: str | None = None):
-        data = combat_batch_correction(data)
+        data = combat_batch_correction(data, tag_list)
         return data
 
     def info(self, file_name: str | None = None):
@@ -305,12 +305,12 @@ class Process:
             self.data[file_name].clear()
         logger.info("Memory cleared")
 
-    def save(self, file_name: str | None = None, data_type: str = "mat", path: str | None = None):
+    def save(self, file_name: str | None = None, data_type: str = "cell_mat", path: str | None = None):
         """
         Save the MSProcess
         Args:
             file_name: File name, if None, all files will be processed.
-            data_type: File type, default "mat", "process" is also available.
+            data_type: File type, default "cell_mat", other types saved in SCData is also supported.
             path: Path to save the file, default None,
              which means the file will be saved in the same directory as the data you loaded.
         """
@@ -319,25 +319,17 @@ class Process:
         else:
             dir_path = path
 
-        def get_data_by_type(ms_data, data_type):
-            if data_type == "cell_mat":
-                return ms_data.cell_mat
-            if data_type == "mat":
-                return ms_data.mat
-            elif data_type == "process":
-                return ms_data.process
-            else:
-                raise ValueError("Type should be 'mat' or 'process'")
-
         if not os.path.exists(dir_path):
             os.mkdir(dir_path)
+        if data_type not in ["cell_mat", "mat", "process", "raw"]:
+            raise ValueError("Data type not supported.")
         if file_name is None:
             for ms_data in self.data.values():
-                get_data_by_type(ms_data, data_type).to_csv(
+                ms_data.__getattribute__(data_type).to_csv(
                     os.path.join(dir_path, f"{ms_data.name}_{data_type}.csv")
                 )
         else:
-            get_data_by_type(self.data[file_name], data_type).to_csv(
+            self.data[file_name].__getattribute__(data_type).to_csv(
                 os.path.join(dir_path, f"{file_name}_{data_type}.csv")
             )
         logger.info("Data saved!")
