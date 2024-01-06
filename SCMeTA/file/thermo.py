@@ -4,7 +4,11 @@ import os
 from pyRawTools import MSLoader
 
 from .format import SCData
-from .plugin import RawFileReader
+import platform
+
+if platform.system() != "Darwin":
+    from .plugin import RawFileReader
+
 
 from SCMeTA.config import SYSTEM
 
