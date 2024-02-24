@@ -9,5 +9,6 @@ scikit-learn
 umap-learn
 polars
 combat
+requests
 # Data Visualization Package
 matplotlib

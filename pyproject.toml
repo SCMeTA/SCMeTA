@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "SCMeTA"
-version = "0.2.4"
+version = "0"
 description = "A python package for single-cell metabolism analysis."
 authors = ["EstrellaXD <estrellaxd05@gmail.com>"]
 license = "GPL-3.0-or-later"
@@ -27,7 +27,10 @@ umap-learn = "^0.5.4"
 pythonnet = "^3.0.3"
 tqdm = "^4.66.1"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-version-plugin]
+source = "git-tag"
+
