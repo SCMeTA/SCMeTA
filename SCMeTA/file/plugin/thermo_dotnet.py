@@ -487,3 +487,13 @@ class RawFileReader(object):
         return pd.concat(scan_mass_list).set_index("Scan")
 
 
+class MSLoader:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def load(raw_file_path):
+        file = RawFileReader(raw_file_path)
+        raw = file.GetFullScanMassList()
+        file.Close()
+        return raw
