@@ -32,5 +32,4 @@ jobs:
         with:
           tag: ${{ github.ref }}
           name: ${{ github.ref }}
-          draft: true
           body_path: CHANGELOG.md
