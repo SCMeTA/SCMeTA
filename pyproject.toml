@@ -28,11 +28,9 @@ pythonnet = "^3.0.3"
 tqdm = "^4.66.1"
 requests = "^2.31.0"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
 
 [tool.poetry-version-plugin]
 source = "git-tag"
