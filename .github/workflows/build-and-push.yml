@@ -12,6 +12,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          source $HOME/.profile
+          poetry --version
+
+      - name: Poetry version plugin
+        run: |
+          poetry plugin list
+          poetry plugin add poetry-version
+          poetry plugin list
+
       - name: Publish Package
         uses: celsiusnarhwal/poetry-publish@v2
         with:
