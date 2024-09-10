@@ -36,6 +36,10 @@ sc.post_process()
 
 The official documentation is hosted on Read the Docs: https://sc-meta.com/
 
+## Sample data
+
+You can find the sample data on [Google Dirve](https://drive.google.com/drive/folders/1tRQEPa7eX8Q_VkAIBnKieim6gIPfVJsM?usp=share_link).
+
 ## License
 
 SCMeTA is licensed under the GPLv3 license. See the LICENSE file for more details.
