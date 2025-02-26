@@ -18,7 +18,7 @@ def peaks_combine(_raw: pd.DataFrame, resolution: float = 0.01) -> pd.DataFrame:
         _raw["Mass"] = np.floor(_raw["Mass"] / resolution) * resolution
     max_scan = _raw.index.max()
     min_scan = _raw.index.min()
-    temp = [sum_df(_raw.loc[scan], scan) for scan in range(min_scan, max_scan + 1)]
+    temp = [sum_df(_raw.loc[scan:scan], scan) for scan in range(min_scan, max_scan + 1)]
     return pd.concat(temp)
 
 
