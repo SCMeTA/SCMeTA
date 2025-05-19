@@ -145,7 +145,7 @@ class MplPlot:
     def ms_compare(self, name: str):
         fig, ax = self.init_plot(2, 1, "line")
         ms_data = self.__data[name]
-        scan_list = ms_data.cell_pos.to_list()
+        scan_list = ms_data.cell_pos
         scan = int(input(f"Please Select a scan from:\n {scan_list}"))
         if scan not in scan_list:
             logger.warning(f"Scan {scan} is not in the scan list")

@@ -1,4 +1,5 @@
 import pandas as pd
+from .optimize import optimize_sequence
 
 
 def find_cell_index(xic: pd.DataFrame, max_ratio=0.1) -> list:
@@ -18,7 +19,7 @@ def find_adjacent(cell_array: list) -> list[list]:
 
 
 def find_cell(
-    mat: pd.DataFrame, refer_mz: float = 760.58, max_ratio: float = 0.1
+    mat: pd.DataFrame, refer_mz: float = 760.58, max_ratio: float | str = 0.1
 ) -> list[list]:
     """Find the cell regions.
 
@@ -29,6 +30,7 @@ def find_cell(
     refer_mz : float, optional
         The reference m/z, by default 760.58
     max_ratio : float, optional
+        The maximum ratio, by default 0.1, if value is "auto", it will auto optimize the max_ratio.
 
     Returns
     -------
@@ -36,7 +38,12 @@ def find_cell(
         The cell regions.
     """
     xic = mat.loc[:, refer_mz].fillna(0)
-    cell_array = find_cell_index(xic, max_ratio=max_ratio)
+    if max_ratio == "auto":
+        best_ratio, cell_array = optimize_sequence(xic, find_cell_index)
+    elif isinstance(max_ratio, float):
+        cell_array = find_cell_index(xic, max_ratio=max_ratio)
+    else:
+        raise ValueError("max_ratio should be float or auto")
     return find_adjacent(cell_array)
 
 

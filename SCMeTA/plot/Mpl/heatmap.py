@@ -56,9 +56,16 @@ def heatmap(
     ax.set_xlabel("Cell")  # 设置x轴标题
     ax.set_ylabel("Mass")  # 设置y轴标题
     ax.set_title(title)  # 设置图像标题
-    fig.colorbar(ScalarMappable(cmap=color_map))  # 使用color bar
+    cax = fig.add_axes([0.9, 0.1, 0.03, 0.8])  # 设置color bar的位置
+    fig.colorbar(ScalarMappable(cmap=color_map), cax=cax)  # 使用color bar
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(new_cell_numb))  # 设置x轴坐标的定位
     ax.xaxis.set_major_formatter(ticker.FixedFormatter(cell_name))  # 设置x轴坐标的名称
     ax.set_yticks(np.arange(len(mass)), labels=mass)  # 设置y轴坐标的定位和名称
     ax.yaxis.set_major_locator(ticker.MultipleLocator(30))  # 每20个y坐标显示一次
+
+    # return the flatterned matrix
+    flattern = mat.values.flatten()
+
+    return flattern
+

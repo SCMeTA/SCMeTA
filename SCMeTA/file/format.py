@@ -32,6 +32,9 @@ class SCData:
     def cut(self, start: float | None, end: float | None):
         self.raw = self.raw.loc[start:end]
 
+    def tic(self):
+        return self.raw.groupby("Scan").sum()
+
     def xic(self, mz: float):
         return self.process.loc[self.process["Mass"] == mz]
 

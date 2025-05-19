@@ -1,4 +1,4 @@
-from .filter import filter_occ, filter_mat
+from .filter import filter_occ, filter_mat, combine_peaks
 from .to_mat import to_mat, to_list
 from .cell import find_cell, merge_cell
 from .noise import noise_subtract, filter_assem
