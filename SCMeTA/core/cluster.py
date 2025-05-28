@@ -2,6 +2,8 @@ import os
 import logging
 
 import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from SCMeTA.file import SCData
 from SCMeTA.method import (
@@ -15,11 +17,10 @@ from SCMeTA.method import (
     filter_mat,
     normalize,
     round_columns,
-    combine_peaks
 )
 from SCMeTA.batch import combat_batch_correction
 from SCMeTA.method.fill import fill_mat
-from SCMeTA.file import load_data
+from SCMeTA.file import load_data, load_from_database
 from SCMeTA.config import PARAMETERS
 from SCMeTA.accelerate import MultiProcessing
 
@@ -56,21 +57,29 @@ class Process:
             file_name: File Name, cannot work if path is a directory.
             data_type: Data type, thermo_raw file / water wiff file / processed csv file are supported.
         """
+        if not os.path.exists(path):
+            logger.error(f"Path {path} does not exist.")
+            raise FileNotFoundError(f"Path {path} does not exist.")
+        if not os.path.isdir(path) and not os.path.isfile(path):
+            logger.error(f"Path {path} is not a file or directory.")
+            raise ValueError(f"Path {path} is not a file or directory.")
+        logger.info(f"Start loading data from {path}...")
         self.data.update(load_data(path, file_name, data_type))
         self.__dir = os.path.dirname(path)
+        logger.info(f"Successfully load {len(self.data)} files from {path}.")
 
-    # def load_database(self, file_id: int | list[int]):
-    #     """
-    #     Load data from database.
-    #     Args:
-    #         file_id: File ID in the database.
-    #
-    #     Returns:
-    #
-    #     """
-    #     data = load_from_database(file_id)
-    #     for key, value in data.items():
-    #         self.data.update(load_data(value, key, "database"))
+    def load_database(self, file_id: int | list[int]):
+        """
+        Load data from database.
+        Args:
+            file_id: File ID in the database.
+
+        Returns:
+
+        """
+        data = load_from_database(file_id)
+        for key, value in data.items():
+            self.data.update(load_data(value, key, "database"))
 
     def load_processed(self, path, file_name: str | None = None, file_type: str = "cell_mat"):
         """
@@ -110,57 +119,44 @@ class Process:
         """
         if file_name is None:
             # self.__mp.run(self.data, _filter_occ, resolution, count)
-            for ms_data in self.data.values():
-                ms_data.process = filter_occ(
-                    raw=ms_data.raw.copy(),
-                    resolution=resolution,
-                    count=count,
-                )
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Filtering occurrence", leave=False):
+                    ms_data.process = filter_occ(ms_data.raw.copy(), resolution, count)
         else:
             self.data[file_name].process = filter_occ(
-                raw=self.data[file_name].raw.copy(),
-                resolution=resolution,
-                count=count,
+                self.data[file_name].raw.copy(), resolution, count
             )
         logger.info("Filter out the data with low occurrence.")
 
     def gen_mat(self, file_name: str | None = None):
         if file_name is None:
-            for ms_data in self.data.values():
-                ms_data.mat = to_mat(ms_data.process)
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Generating matrix", leave=False):
+                    ms_data.mat = to_mat(ms_data.process)
         else:
             self.data[file_name].mat = to_mat(self.data[file_name].process)
 
-    def denoise(
-            self,
-            max_ratio: float | str = PARAMETERS.maxratio,
-            file_name: str | None = None,
-    ):
+    def denoise(self, max_ratio: float = PARAMETERS.maxratio, file_name: str | None = None):
         """
         Find cell and subtract noise.
         Args:
-            max_ratio: The ration value to find cell peaks, if is set to "auto", the program will auto optimize the value.
+            max_ratio: If the ratio of the max value to the second max value is larger than this value, the cell will be
             file_name: File name, if None, all files will be processed.
         """
         if file_name is None:
-            for ms_data in self.data.values():
-                ms_data.cell_pos = find_cell(
-                    mat=ms_data.mat,
-                    refer_mz=self.ref_mz,
-                    max_ratio=max_ratio,
-                )
-                ms_data.mat = noise_subtract(ms_data.mat, ms_data.cell_pos)
-                logger.info(f"Find {len(ms_data.cell_pos)} cells in {ms_data.name}.")
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Denoising", leave=False):
+                    ms_data.cell_pos = find_cell(
+                        ms_data.mat, self.ref_mz, max_ratio=max_ratio
+                    )
+                    ms_data.mat = noise_subtract(ms_data.mat, ms_data.cell_pos)
         else:
             ms_data = self.data[file_name]
             ms_data.cell_pos = find_cell(
-                mat=ms_data.mat,
-                refer_mz=self.ref_mz,
-                max_ratio=max_ratio,
+                ms_data.mat, self.ref_mz, max_ratio=max_ratio
             )
             ms_data.mat = noise_subtract(ms_data.mat, ms_data.cell_pos)
             self.data[file_name] = ms_data
-            logger.info(f"Find {len(ms_data.cell_pos)} cells in {ms_data.name}.")
         logger.info("Noise subtracted!")
 
     def merge_cell(self, adjacent: int = PARAMETERS.adjacent, file_name: str | None = None):
@@ -226,7 +222,7 @@ class Process:
 
     def filter_mat(
         self,
-        threshold: float | str = PARAMETERS.threshold,
+        threshold: float = PARAMETERS.threshold,
         name_list: list[str] | None = None,
         lock_mz: bool = PARAMETERS.lock,
         method: str = "all"
@@ -234,7 +230,7 @@ class Process:
         """
         Filter out the data with low occurrence
         Args:
-            threshold: Minimum occurrence rate of the data, default 0.2, if value is "auto", it will auto optimize the threshold.
+            threshold: Minimum occurrence rate of the data, default 0.2
             name_list: File name list, if None, all files will be processed.
             lock_mz: If True, the mz you select in lock mz file will be locked, default False.
             method: Method to filter the data, default "all", can be "all", "any", "none".
@@ -261,16 +257,6 @@ class Process:
                 data[file_name].cell_mat, normalize_method, mz=self.ref_mz
             )
         logger.info("Normalization finished.")
-
-    def combine_peaks(self, interval: float, file_name: str | None = None):
-        if file_name is None:
-            for ms_data in self.data.values():
-                ms_data.cell_mat = combine_peaks(cell_mat=ms_data.cell_mat, interval=interval)
-        else:
-            self.data[file_name].cell_mat = combine_peaks(
-                self.data[file_name].cell_mat, interval
-            )
-        logger.info("Peaks combined.")
 
     def fill(self,
              data: dict[str, SCData],
@@ -334,7 +320,7 @@ class Process:
 
     def save(self, file_name: str | None = None, data_type: str = "cell_mat", path: str | None = None):
         """
-        Save the Cell data
+        Save the MSProcess
         Args:
             file_name: File name, if None, all files will be processed.
             data_type: File type, default "cell_mat", other types saved in SCData is also supported.
@@ -394,19 +380,19 @@ class Process:
                 self.data[name].cut(start=cut_range[0], end=cut_range[1])
         elif file_name is None:
             pass
+        logger.info("Start pre-processing data...")
         self.filter_occ(resolution=resolution, count=count)
         logger.info("Pre-process finished.")
 
     def process(
             self,
-            max_ratio: float | str = PARAMETERS.maxratio,
+            max_ratio: float = PARAMETERS.maxratio,
             adjacent: int = PARAMETERS.adjacent,
             snr: float = PARAMETERS.snr,
             resolution: float = PARAMETERS.resolution,
-            threshold: float | str = PARAMETERS.threshold,
+            threshold: float = PARAMETERS.threshold,
             lock_mz: bool = PARAMETERS.lock,
-            filter_method: str = "all",
-            combine_interval: float = PARAMETERS.resolution,
+            filter_method: str = "all"
     ):
         """
         Args:
@@ -414,24 +400,33 @@ class Process:
             adjacent: The number of adjacent cells to be combined
             snr: Signal to noise ratio
             resolution: Resolution of the data
-            threshold: Threshold of the data, if value is "auto", it will auto optimize the threshold.
+            threshold: Threshold of the data
             lock_mz: If True, the mz you select in lock mz file will be locked
-            filter_method: Method of filtering. Parameters can be "all", "any", "none"
-            combine_interval: Whether to combine the peaks.
-            and metabolic features.
+            filter_method: Method of filtering
         """
         if self.data is None:
             logger.warning("Please check the data carefully!")
             raise ValueError("No data loaded, please load data first")
+        progress_bar = tqdm.tqdm(
+            6,
+            desc="Processing",
+            bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]"
+        )
         self.gen_mat()
+        progress_bar.update(1)
         self.round_mat(resolution=resolution)
-        self.combine_peaks(interval=combine_interval)
+        progress_bar.update(1)
         self.denoise(max_ratio=max_ratio)
+        progress_bar.update(1)
         self.merge_cell(adjacent=adjacent)
+        progress_bar.update(1)
         self.filter_assem(snr=snr)
+        progress_bar.update(1)
         self.filter_mat(threshold=threshold, lock_mz=lock_mz, method=filter_method)
+        progress_bar.update(1)
         self.info()
         self.clear_memory()
+        return self.data
 
     def post_process(
             self,

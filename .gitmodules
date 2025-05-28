@@ -1,0 +1,3 @@
+[submodule "RawFileReader"]
+	path = RawFileReader
+	url = git@github.com:SCMeTA/RawFileReader.git

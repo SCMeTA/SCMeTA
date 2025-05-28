@@ -19,7 +19,7 @@ def peaks_combine(_raw: pd.DataFrame, resolution: float = 0.01) -> pd.DataFrame:
         _raw["Mass"] = np.floor(_raw["Mass"] / resolution) * resolution
     max_scan = _raw.index.max()
     min_scan = _raw.index.min()
-    temp = [sum_df(_raw.loc[scan], scan) for scan in range(min_scan, max_scan + 1)]
+    temp = [sum_df(_raw.loc[scan], scan) for scan in _raw.index.unique()]
     return pd.concat(temp)
 
 def calculate_ppm(mz1: float, mz2: float) -> float:
@@ -92,7 +92,10 @@ def filter_occ(
     :param count: Minimum number of occurrences.
     :return: List of filtered peaks.
     """
-    process = peaks_combine(raw, resolution)
+    # keep Scan Mass Intensity columns
+    process = raw[[ "Mass", "Intensity"]].copy()
+
+    process = peaks_combine(process, resolution)
     peaks = process["Mass"].value_counts()
     peaks = peaks[peaks >= count]
     process = process[process["Mass"].isin(peaks.index)]

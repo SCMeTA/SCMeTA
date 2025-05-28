@@ -1,7 +1,7 @@
 import pandas as pd
 
 from .format import SCData
-from .plugin import RawFileReader
+from . import RawFileReader
 
 
 def load_txt(path):
@@ -11,10 +11,13 @@ def load_txt(path):
     return raw
 
 
-def load_thermo(path):
-    reader = RawFileReader()
-    raw = reader.load(path)
-    return raw
+def load_thermo(path, include_ms2=False):
+    reader = RawFileReader(file_path=path)
+    data = reader.to_dataframe(include_ms2=include_ms2)
+    data.set_index("Scan", inplace=True)
+    data = data.drop(columns=["RetentionTime"])
+
+    return data
 
 
 def load_thermo_data(name, path) -> SCData:
