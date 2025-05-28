@@ -2,6 +2,8 @@ import os
 import logging
 
 import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from SCMeTA.file import SCData
 from SCMeTA.method import (
@@ -55,8 +57,16 @@ class Process:
             file_name: File Name, cannot work if path is a directory.
             data_type: Data type, thermo_raw file / water wiff file / processed csv file are supported.
         """
+        if not os.path.exists(path):
+            logger.error(f"Path {path} does not exist.")
+            raise FileNotFoundError(f"Path {path} does not exist.")
+        if not os.path.isdir(path) and not os.path.isfile(path):
+            logger.error(f"Path {path} is not a file or directory.")
+            raise ValueError(f"Path {path} is not a file or directory.")
+        logger.info(f"Start loading data from {path}...")
         self.data.update(load_data(path, file_name, data_type))
         self.__dir = os.path.dirname(path)
+        logger.info(f"Successfully load {len(self.data)} files from {path}.")
 
     def load_database(self, file_id: int | list[int]):
         """
@@ -109,8 +119,9 @@ class Process:
         """
         if file_name is None:
             # self.__mp.run(self.data, _filter_occ, resolution, count)
-            for ms_data in self.data.values():
-                ms_data.process = filter_occ(ms_data.raw.copy(), resolution, count)
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Filtering occurrence", leave=False):
+                    ms_data.process = filter_occ(ms_data.raw.copy(), resolution, count)
         else:
             self.data[file_name].process = filter_occ(
                 self.data[file_name].raw.copy(), resolution, count
@@ -119,8 +130,9 @@ class Process:
 
     def gen_mat(self, file_name: str | None = None):
         if file_name is None:
-            for ms_data in self.data.values():
-                ms_data.mat = to_mat(ms_data.process)
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Generating matrix", leave=False):
+                    ms_data.mat = to_mat(ms_data.process)
         else:
             self.data[file_name].mat = to_mat(self.data[file_name].process)
 
@@ -132,11 +144,12 @@ class Process:
             file_name: File name, if None, all files will be processed.
         """
         if file_name is None:
-            for ms_data in self.data.values():
-                ms_data.cell_pos = find_cell(
-                    ms_data.mat, self.ref_mz, max_ratio=max_ratio
-                )
-                ms_data.mat = noise_subtract(ms_data.mat, ms_data.cell_pos)
+            with logging_redirect_tqdm():
+                for ms_data in tqdm(self.data.values(), desc="Denoising", leave=False):
+                    ms_data.cell_pos = find_cell(
+                        ms_data.mat, self.ref_mz, max_ratio=max_ratio
+                    )
+                    ms_data.mat = noise_subtract(ms_data.mat, ms_data.cell_pos)
         else:
             ms_data = self.data[file_name]
             ms_data.cell_pos = find_cell(
@@ -367,6 +380,7 @@ class Process:
                 self.data[name].cut(start=cut_range[0], end=cut_range[1])
         elif file_name is None:
             pass
+        logger.info("Start pre-processing data...")
         self.filter_occ(resolution=resolution, count=count)
         logger.info("Pre-process finished.")
 
@@ -393,12 +407,23 @@ class Process:
         if self.data is None:
             logger.warning("Please check the data carefully!")
             raise ValueError("No data loaded, please load data first")
+        progress_bar = tqdm.tqdm(
+            6,
+            desc="Processing",
+            bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]"
+        )
         self.gen_mat()
+        progress_bar.update(1)
         self.round_mat(resolution=resolution)
+        progress_bar.update(1)
         self.denoise(max_ratio=max_ratio)
+        progress_bar.update(1)
         self.merge_cell(adjacent=adjacent)
+        progress_bar.update(1)
         self.filter_assem(snr=snr)
+        progress_bar.update(1)
         self.filter_mat(threshold=threshold, lock_mz=lock_mz, method=filter_method)
+        progress_bar.update(1)
         self.info()
         self.clear_memory()
         return self.data

@@ -1,6 +1,7 @@
 import os
 
 from SCMeTA.accelerate import MultiThreader
+from RawFileReader.RawFileExacter import RawFileReader
 
 from .thermo import load_thermo_data
 from .process import load_process_data
@@ -46,7 +47,7 @@ def read_files_in_parallel(paths, names = None, data_type: str = "thermo") -> di
 
 def load_data(
     path: str | dict, name: str | None = None, data_type: str = "thermo"
-) -> dict[str, SCData]:
+) -> dict[str, SCData] | None:
     if isinstance(path, str):
         if os.path.isdir(path):
             files = os.listdir(path)
@@ -62,5 +63,7 @@ def load_data(
         paths = [path_from_database(path) for path in path.values()]
         results = read_files_in_parallel(paths=paths, names=path.keys(), data_type=data_type)
         return results
+    else:
+        raise ValueError("Path must be a string or a dictionary of paths")
 
 
