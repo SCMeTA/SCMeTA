@@ -13,7 +13,7 @@ def load_txt(path):
 
 def load_thermo(path, include_ms2=False):
     reader = RawFileReader(file_path=path)
-    data = reader.to_dataframe(include_ms2=include_ms2)
+    data = reader.to_dataframe(include_ms2=include_ms2, filter_threshold=10)
     data.set_index("Scan", inplace=True)
     data = data.drop(columns=["RetentionTime"])
 
