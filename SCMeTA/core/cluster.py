@@ -2,7 +2,7 @@ import os
 import logging
 
 import pandas as pd
-from tqdm import tqdm
+from tqdm import tqdm, trange
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from SCMeTA.file import SCData
@@ -88,9 +88,7 @@ class Process:
             path: File path or directory path.
             file_name: File Name, cannot work if path is a directory.
             file_type:
-
         Returns:
-
         """
         if os.path.isdir(path):
             for file in os.listdir(path):
@@ -407,26 +405,25 @@ class Process:
         if self.data is None:
             logger.warning("Please check the data carefully!")
             raise ValueError("No data loaded, please load data first")
-        progress_bar = tqdm.tqdm(
-            6,
-            desc="Processing",
-            bar_format="{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]"
-        )
-        self.gen_mat()
-        progress_bar.update(1)
-        self.round_mat(resolution=resolution)
-        progress_bar.update(1)
-        self.denoise(max_ratio=max_ratio)
-        progress_bar.update(1)
-        self.merge_cell(adjacent=adjacent)
-        progress_bar.update(1)
-        self.filter_assem(snr=snr)
-        progress_bar.update(1)
-        self.filter_mat(threshold=threshold, lock_mz=lock_mz, method=filter_method)
-        progress_bar.update(1)
-        self.info()
-        self.clear_memory()
-        return self.data
+        with logging_redirect_tqdm():
+            logger.info("Start processing data...")
+            # Initialize progress bar
+            progress_bar = trange(7, desc="Processing...", leave=False)
+            self.gen_mat()
+            progress_bar.update(1)
+            self.round_mat(resolution=resolution)
+            progress_bar.update(1)
+            self.denoise(max_ratio=max_ratio)
+            progress_bar.update(1)
+            self.merge_cell(adjacent=adjacent)
+            progress_bar.update(1)
+            self.filter_assem(snr=snr)
+            progress_bar.update(1)
+            self.filter_mat(threshold=threshold, lock_mz=lock_mz, method=filter_method)
+            progress_bar.update(1)
+            self.info()
+            self.clear_memory()
+            return self.data
 
     def post_process(
             self,

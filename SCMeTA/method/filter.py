@@ -10,14 +10,49 @@ def sum_df(df, scan) -> pd.DataFrame:
     df = df.set_index("Scan")
     return df
 
+def ppm_combine(_raw: pd.DataFrame, ppm: int = 5) -> list:
+    """
+    Combine peaks based on ppm tolerance.
+    :param _raw: Raw data.
+    :param ppm: PPM tolerance.
+    :return: Combined peaks.
+    """
+    # get unique mass values
+    mass_list = _raw["Mass"].unique()
+    # sort mass values
+    mass_list.sort()
+    # calculate the tolerance in m/z
+    tolerance = ppm / 1e6 * mass_list
+    # create a list to store combined peaks
+    combined_peaks = []
+    # iterate through the mass values
+    for mass in mass_list:
+        # find the peaks within the tolerance range
+        peaks = _raw[
+            (_raw["Mass"] >= mass - tolerance
+                ) & (_raw["Mass"] <= mass + tolerance)
+        ]
+        # if there are peaks within the tolerance range, combine them
+        if not peaks.empty:
+            combined_peak = peaks.groupby("Mass").sum().reset_index()
+            combined_peak["Mass"] = mass
+            combined_peak.insert(0, "Scan", peaks["Scan"].iloc[0])
+            combined_peak = combined_peak.set_index("Scan")
+            combined_peaks.append(combined_peak)
+    # concatenate the combined peaks into a single DataFrame
+    if combined_peaks:
+        return pd.concat(combined_peaks)
+    else:
+        return pd.DataFrame(columns=["Scan", "Mass", "Intensity"])
+
+
+
 
 def peaks_combine(_raw: pd.DataFrame, resolution: float = 0.01) -> pd.DataFrame:
     try:
-        _raw["Mass"] = _raw["Mass"].divide(0.01).apply(np.floor).mul(0.01)
+        _raw["Mass"] = _raw["Mass"].divide(resolution).apply(np.floor).mul(resolution)
     except AttributeError:
         _raw["Mass"] = np.floor(_raw["Mass"] / resolution) * resolution
-    max_scan = _raw.index.max()
-    min_scan = _raw.index.min()
     temp = [sum_df(_raw.loc[scan], scan) for scan in _raw.index.unique()]
     return pd.concat(temp)
 
