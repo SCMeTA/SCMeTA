@@ -8,3 +8,5 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     level=logging.INFO,
 )
+
+TQDM_FORMAT = "{l_bar}{bar:10}{r_bar}{bar:-10b}"
