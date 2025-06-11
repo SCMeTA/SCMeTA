@@ -3,7 +3,8 @@ import logging
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.figure import Figure, Axes
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 
 from SCMeTA.plot.Mpl import scatter, heatmap, line, radar, volcano, bar, box
 from SCMeTA.method import round_rows, round_columns, k_w_test

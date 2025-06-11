@@ -3,7 +3,8 @@ import pandas as pd
 
 from matplotlib.cm import ScalarMappable
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure, Axes
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.ticker as ticker
 
 from SCMeTA.method import combine_mat
