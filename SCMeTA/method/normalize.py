@@ -102,7 +102,7 @@ def log_normalize(df: pd.DataFrame, base: float = 2, **kwargs) -> pd.DataFrame:
         pd.DataFrame: Log-normalized DataFrame
     """
     normalized_df = df.copy()
-    normalized_df = normalized_df.applymap(lambda x: np.log(x + 1, dtype='float64') / np.log(base, dtype='float64') if x > 0 else 0)
+    normalized_df = normalized_df.map(lambda x: np.log(x + 1, dtype='float64') / np.log(base, dtype='float64') if x > 0 else 0)
     return normalized_df
 
 
