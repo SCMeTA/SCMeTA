@@ -17,11 +17,12 @@ from SCMeTA.method import (
     filter_mat,
     normalize,
     round_columns,
+    reindex_mat
 )
 from SCMeTA.batch import combat_batch_correction
 from SCMeTA.method.fill import fill_mat
 from SCMeTA.file import load_data, load_from_database
-from SCMeTA.config import PARAMETERS
+from SCMeTA.config import PARAMETERS, TQDM_FORMAT
 from SCMeTA.accelerate import MultiProcessing
 
 logger = logging.getLogger(__name__)
@@ -118,7 +119,7 @@ class Process:
         if file_name is None:
             # self.__mp.run(self.data, _filter_occ, resolution, count)
             with logging_redirect_tqdm():
-                for ms_data in tqdm(self.data.values(), desc="Filtering occurrence", leave=False):
+                for ms_data in tqdm(self.data.values(), desc="Filtering occurrence", leave=False, bar_format=TQDM_FORMAT):
                     ms_data.process = filter_occ(ms_data.raw.copy(), resolution, count)
         else:
             self.data[file_name].process = filter_occ(
@@ -129,7 +130,7 @@ class Process:
     def gen_mat(self, file_name: str | None = None):
         if file_name is None:
             with logging_redirect_tqdm():
-                for ms_data in tqdm(self.data.values(), desc="Generating matrix", leave=False):
+                for ms_data in tqdm(self.data.values(), desc="Generating matrix", leave=False, bar_format=TQDM_FORMAT):
                     ms_data.mat = to_mat(ms_data.process)
         else:
             self.data[file_name].mat = to_mat(self.data[file_name].process)
@@ -143,7 +144,7 @@ class Process:
         """
         if file_name is None:
             with logging_redirect_tqdm():
-                for ms_data in tqdm(self.data.values(), desc="Denoising", leave=False):
+                for ms_data in tqdm(self.data.values(), desc="Denoising", leave=False, bar_format=TQDM_FORMAT):
                     ms_data.cell_pos = find_cell(
                         ms_data.mat, self.ref_mz, max_ratio=max_ratio
                     )
@@ -204,10 +205,12 @@ class Process:
         if file_name is None:
             for ms_data in self.data.values():
                 ms_data.mat = round_columns(ms_data.mat, resolution)
+                ms_data.mat = reindex_mat(ms_data)
         else:
             self.data[file_name].mat = round_columns(
                 self.data[file_name].mat, resolution
             )
+            self.data[file_name].mat = reindex_mat(self.data[file_name])
 
     def gen_process(self, file_name: str | None = None):
         if file_name is None:
@@ -408,7 +411,7 @@ class Process:
         with logging_redirect_tqdm():
             logger.info("Start processing data...")
             # Initialize progress bar
-            progress_bar = trange(7, desc="Processing...", leave=False)
+            progress_bar = trange(7, desc="Processing...", leave=False, bar_format=TQDM_FORMAT)
             self.gen_mat()
             progress_bar.update(1)
             self.round_mat(resolution=resolution)
