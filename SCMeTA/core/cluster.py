@@ -438,7 +438,7 @@ class Process:
         """
         Args:
             data: Dict of MSData
-            normalize_method: Method of normalization
+            normalize_method: Method of normalization, functions should be list in list. Available methods are "mz", "log10", "zscore", "minmax", "quantile".
             fillna_method: Method of filling nan
             tags: Tags of the data
         Returns:
