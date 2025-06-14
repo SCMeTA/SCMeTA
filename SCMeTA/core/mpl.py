@@ -73,38 +73,50 @@ class MplPlot:
         )
         return fig, ax
 
-    def pca(self, ax=None, n_components: int = 2):
-        full = discriminate(self.__mat, method="pca", n_components=n_components)
+    def __chose_mz(self, mz_range: tuple[float, float] | None = None):
+        if mz_range is not None:
+            mat = self.__mat
+            for name, m in self.__mat.items():
+                mat[name] = m.loc[:, (m.index >= mz_range[0]) & (m.index <= mz_range[1])]
+        else:
+            mat = self.__mat
+        return mat
+
+    def pca(self, ax=None, n_components: int = 2, mz_range: tuple[float, float] | None = None):
+        mat = self.__chose_mz(mz_range)
+        full = discriminate(mat, method="pca", n_components=n_components)
         if ax is None:
             fig, ax = self.init_plot(1, 1, "scatter")
         scatter(data=full, cell_range=self.__cell_range, ax=ax, title="PCA")
         return to_mat(full, self.__cell_range)
 
-    def tsne(self, ax=None, n_components: int = 2):
-        full = discriminate(self.__mat, method="tsne", n_components=n_components)
+    def tsne(self, ax=None, n_components: int = 2, mz_range: tuple[float, float] | None = None):
+        mat = self.__chose_mz(mz_range)
+        full = discriminate(mat, method="tsne", n_components=n_components)
         if ax is None:
             fig, ax = self.init_plot(1, 1, "scatter")
         scatter(data=full, cell_range=self.__cell_range, ax=ax, title="t-SNE")
         return to_mat(full, self.__cell_range)
 
-    def umap(self, ax=None, n_components: int = 2):
-        full = discriminate(self.__mat, method="umap", n_components=n_components)
+    def umap(self, ax=None, n_components: int = 2, mz_range: tuple[float, float] | None = None):
+        mat = self.__chose_mz(mz_range)
+        full = discriminate(mat, method="umap", n_components=n_components)
         if ax is None:
             fig, ax = self.init_plot(1, 1, "scatter")
         scatter(data=full, cell_range=self.__cell_range, ax=ax, title="UMAP")
         return to_mat(full, self.__cell_range)
 
-    def scatter_select(self, method: list[str] | None = None, n_components: int = 2):
+    def scatter_select(self, method: list[str] | None = None, n_components: int = 2, mz_range: tuple[float, float] | None = None):
         if method is None:
             method = ["pca", "tsne", "umap"]
         fig, ax = self.init_plot(1, len(method), "scatter")
         for i, m in enumerate(method):
             if m == "pca":
-                self.pca(ax[i], n_components)
+                self.pca(ax[i], n_components, mz_range)
             elif m == "tsne":
-                self.tsne(ax[i], n_components)
+                self.tsne(ax[i], n_components, mz_range)
             elif m == "umap":
-                self.umap(ax[i], n_components)
+                self.umap(ax[i], n_components, mz_range)
             else:
                 raise ValueError(f"method {m} is not supported")
 

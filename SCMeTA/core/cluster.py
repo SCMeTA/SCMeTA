@@ -387,7 +387,7 @@ class Process:
 
     def process(
             self,
-            max_ratio: float = PARAMETERS.maxratio,
+            max_ratio: float | str = PARAMETERS.maxratio,
             adjacent: int = PARAMETERS.adjacent,
             snr: float = PARAMETERS.snr,
             resolution: float = PARAMETERS.resolution,

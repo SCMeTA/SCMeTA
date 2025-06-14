@@ -7,7 +7,7 @@ from .thermo import load_thermo_data
 from .process import load_process_data
 from .waters import load_waters_data
 from .format import *
-# from .database import load_from_database
+from .database import load_from_database
 
 FUNC_DICT = {
     "thermo": load_thermo_data,
