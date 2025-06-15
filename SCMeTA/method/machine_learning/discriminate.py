@@ -54,12 +54,12 @@ def to_mat(
     """
     Convert the result of discriminate to a dataframe.
     Args:
-        full: The result of discriminate.
+        full: The result of discriminating.
         cell_range: The range of each cell.
         n_components
 
     Returns:
-        A dataframe of the result of discriminate.
+        A dataframe of the result of discriminating.
     """
     data_list = {}
     start = 0
