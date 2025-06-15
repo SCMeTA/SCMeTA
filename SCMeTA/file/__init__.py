@@ -8,6 +8,7 @@ from .process import load_process_data
 from .waters import load_waters_data
 from .format import *
 from .database import load_from_database
+from .sample_name import remove_prefix
 
 FUNC_DICT = {
     "thermo": load_thermo_data,
@@ -67,5 +68,5 @@ def load_data(
         raise ValueError("Path must be a string or a dictionary of paths")
 
 
-__all__ = ["load_data", "SCData"]
+__all__ = ["load_data", "SCData", "remove_prefix", "load_from_database"]
 

@@ -62,4 +62,5 @@ def heatmap(
     ax.xaxis.set_major_locator(ticker.FixedLocator(new_cell_numb))  # 设置x轴坐标的定位
     ax.xaxis.set_major_formatter(ticker.FixedFormatter(cell_name))  # 设置x轴坐标的名称
     ax.set_yticks(np.arange(len(mass)), labels=mass)  # 设置y轴坐标的定位和名称
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(30))  # 每20个y坐标显示一次
+    # show total 30 y-axis ticks
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(20))

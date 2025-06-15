@@ -1,1 +1,1 @@
-from .discriminate import discriminate, to_mat
+from .discriminate import discriminate, to_mat, kmeans

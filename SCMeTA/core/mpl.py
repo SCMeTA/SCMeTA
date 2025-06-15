@@ -8,10 +8,12 @@ from matplotlib.axes import Axes
 
 from SCMeTA.plot.Mpl import scatter, heatmap, line, radar, volcano, bar, box
 from SCMeTA.method import round_rows, round_columns, k_w_test
-from SCMeTA.method.machine_learning import discriminate, to_mat
-from SCMeTA.file import SCData
+from SCMeTA.method.machine_learning import discriminate, to_mat, kmeans
+from SCMeTA.file import SCData, remove_prefix
 
 logger = logging.getLogger(__name__)
+
+plt.rcParams["font.family"] = "Arial"
 
 FIGURE_SIZE = {
     "heatmap": (7, 5),
@@ -51,6 +53,27 @@ class MplPlot:
         else:
             raise ValueError("Please provide data or path")
         self.__cell_range = {key: mat.shape[0] for key, mat in self.__mat.items()}
+        self.remove_prefix()
+        # sort the mat and cell_range by name
+        self.__mat = dict(sorted(self.__mat.items()))
+        self.__cell_range = dict(sorted(self.__cell_range.items()))
+
+    def remove_prefix(self):
+        """
+        Remove prefix from the cell range and mat keys
+        """
+        if not self.__mat:
+            raise ValueError("No data loaded")
+        new_cell_range = {}
+        new_mat = {}
+        keys = list(self.__mat.keys())
+        new_keys = remove_prefix(keys)
+        for old_key, new_key in zip(keys, new_keys):
+            new_cell_range[new_key] = self.__cell_range[old_key]
+            new_mat[new_key] = self.__mat[old_key]
+        self.__cell_range = new_cell_range
+        self.__mat = new_mat
+
 
     @staticmethod
     def init_plot(rows: int, cols: int, figure_type: str) -> tuple[Figure, Axes]:
@@ -77,7 +100,7 @@ class MplPlot:
         if mz_range is not None:
             mat = self.__mat
             for name, m in self.__mat.items():
-                mat[name] = m.loc[:, (m.index >= mz_range[0]) & (m.index <= mz_range[1])]
+                mat[name] = m.loc[:, (m.columns >= mz_range[0]) & (m.columns <= mz_range[1])]
         else:
             mat = self.__mat
         return mat
@@ -139,14 +162,22 @@ class MplPlot:
             fig, ax = self.init_plot(1, 1, "scatter")
         volcano(mat1, mat2, name1, name2, ax=ax, **kwargs)
 
-    def box(self, ax=None, method: str = "tsne"):
+    def box(self, ax=None, method: str = "tsne", mz_range: tuple[float, float] | None = None):
         if ax is None:
             fig, ax = self.init_plot(1, 1, "scatter")
-        full_data = discriminate(self.__mat, method=method, n_components=1)
+        mat = self.__chose_mz(mz_range)
+        full_data = discriminate(mat, method=method, n_components=1)
         dict_data = to_mat(full_data, self.__cell_range, n_components=1)
         h_statistic, p_value = k_w_test(dict_data)
         box(dict_data, ax=ax, h_statistic=h_statistic, p_value=p_value)
         return dict_data
+
+    def k_means(self, n_clusters: int = 2, mz_range: tuple[float, float] | None = None):
+        mat = self.__chose_mz(mz_range)
+        full = kmeans(mat, n_clusters=n_clusters)
+        fig, ax = self.init_plot(1, 1, "scatter")
+        scatter(data=full, cell_range=self.__cell_range, ax=ax, title="K-Means")
+        return to_mat(full, self.__cell_range)
 
     # def radar(self, ax=None, mz_list: pd.DataFrame | None = None):
     #     if ax is None:

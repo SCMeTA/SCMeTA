@@ -23,11 +23,18 @@ def scatter(
     ax: Axes,
     title: str,
     cell_range: dict[str, int] or None = None,
-    point_size: int = 10,
+    point_size: int = 20,
 ):
+    # set font family as "Arial"
     if isinstance(data, np.ndarray):
         if cell_range is None:
-            ax.scatter(data[:, 0], data[:, 1], s=point_size, c=COLOR_KEY[0], label="data")
+            ax.scatter(
+                data[:, 0],
+                data[:, 1],
+                s=point_size,
+                c=COLOR_KEY[0],
+                label="data"
+            )
             ax.set_title(title)
         else:
             for i, (key, value) in enumerate(cell_range.items()):
@@ -36,6 +43,8 @@ def scatter(
                     data[0 : value - 1, 1],
                     s=point_size,
                     c=COLOR_KEY[i],
+                    alpha=0.8,
+                    edgecolors=COLOR_KEY[i],
                     label=key
                 )
                 data = data[value:]
@@ -43,7 +52,7 @@ def scatter(
         ax.scatter(data.iloc[:, 0], data.iloc[:, 1], s=point_size, c=COLOR_KEY[0], label="data")
     else:
         raise TypeError(f"data type {type(data)} is not supported")
-    ax.set_title(title)
+    ax.set_title(title, fontsize=16, fontweight='bold')
     ax.legend()
 
 

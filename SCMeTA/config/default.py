@@ -3,7 +3,7 @@ DEFAULT_CONFIG = """
 [PARAMETERS]
 Resolution = 0.01
 Count = 10
-MaxRatio = 0.1
+MaxRatio = auto
 Adjacent = 3
 Snr = 3.0
 Threshold = 0.2

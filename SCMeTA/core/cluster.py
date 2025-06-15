@@ -1,11 +1,12 @@
 import os
 import logging
+import re
 
 import pandas as pd
 from tqdm import tqdm, trange
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from SCMeTA.file import SCData
+from SCMeTA.file import SCData, remove_prefix
 from SCMeTA.method import (
     filter_occ,
     to_mat,
@@ -97,6 +98,7 @@ class Process:
                     file_name = os.path.basename(file).split(".")[0]
                     data = pd.read_csv(os.path.join(path, file), index_col=0)
                     data.columns = [float(i) for i in data.columns]
+                    file_name  = file_name.replace(f"_{file_type}", "")
                     self.data[file_name] = SCData(name=file_name, cell_mat=data)
         else:
             data = pd.read_csv(path, index_col=0)
