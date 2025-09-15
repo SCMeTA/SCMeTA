@@ -21,7 +21,7 @@ def optimize_sequence(
     optimized : tuple[float, list]
         The optimized value parameter, and the optimized value.
     """
-    x_data = np.arange(0, 0.9, 0.01)
+    x_data = np.arange(0, 0.9, 0.001)
     cell_counts_list = [func(mat, i) for i in x_data]
     y_data = np.array([len(cell_counts) for cell_counts in cell_counts_list])
     inflection_point = find_inflection_point(x_data, y_data)
