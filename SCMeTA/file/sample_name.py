@@ -1,6 +1,6 @@
 import re
 
-def loongest_common_prefix(sample_name: list[str]) -> str:
+def longest_common_prefix(sample_name: list[str]) -> str:
     """
     Find the longest common prefix in a list of sample names.
     :param sample_name: List of sample names.
@@ -28,7 +28,7 @@ def remove_prefix(sample_name: list[str]) -> list[str]:
     :param sample_name: List of sample names.
     :return: List of sample names without the common prefix.
     """
-    prefix = loongest_common_prefix(sample_name)
+    prefix = longest_common_prefix(sample_name)
 
     if not prefix:
         return sample_name

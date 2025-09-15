@@ -14,9 +14,10 @@ from SCMeTA.file import SCData, remove_prefix
 logger = logging.getLogger(__name__)
 
 plt.rcParams["font.family"] = "Arial"
+plt.rcParams["figure.dpi"] = 300
 
 FIGURE_SIZE = {
-    "heatmap": (7, 5),
+    "heatmap": (6, 5),
     "scatter": (5, 5),
     "line": (10, 5),
 }
@@ -30,12 +31,14 @@ class MplPlot:
 
     def __read_csv(self, path: str):
         mat = pd.read_csv(path, index_col=0)
+        # convert the columns to float
+        mat.columns = mat.columns.astype(float)
         name = os.path.basename(path).split(".")[0]
         self.__mat[name] = mat
         self.__cell_range[name] = mat.shape[0]
         logger.info(f"Successfully load {name}.")
 
-    def load(self, data: dict[str, SCData] | None = None, path: str | None = None):
+    def load(self, data: dict[str, SCData] | None = None, path: str | None = None, org_name: bool = False):
         if path is not None:
             # Load Cell Mat from dir or file
             if os.path.isdir(path):
@@ -53,7 +56,8 @@ class MplPlot:
         else:
             raise ValueError("Please provide data or path")
         self.__cell_range = {key: mat.shape[0] for key, mat in self.__mat.items()}
-        self.remove_prefix()
+        if org_name:
+            self.remove_prefix()
         # sort the mat and cell_range by name
         self.__mat = dict(sorted(self.__mat.items()))
         self.__cell_range = dict(sorted(self.__cell_range.items()))

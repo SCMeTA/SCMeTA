@@ -10,6 +10,7 @@ import matplotlib.ticker as ticker
 from SCMeTA.method import combine_mat
 
 CMAP_KEY = {
+    "jet": plt.cm.jet,
     "viridis": plt.cm.viridis,
     "plasma": plt.cm.plasma,
     "inferno": plt.cm.inferno,
@@ -29,16 +30,21 @@ def heatmap(
     cell_range: dict[str, int],
     ax: Axes,
     fig: Figure,
-    color_map="viridis",
+    color_map="jet",
     func: str = "NO_LOG",
     title: str = "Heatmap",
 ):
-    mat = combine_mat(mat_list.values()).fillna(0.00001)
+    mat = combine_mat(mat_list.values()).fillna(0.000001)
     mat = mat.apply(LOG_KEY[func])
+    # normalize the matrix from 0 to 1
+    mat = (mat - mat.min().min()) / (mat.max().max() - mat.min().min())
     mat = mat.T
-    ax.imshow(
+    fig.subplots_adjust(right=1, left=0.15, top=0.9, bottom=0.1)
+    im = ax.imshow(
         mat, cmap=CMAP_KEY[color_map], aspect="auto"
-    )  # aspect="auto"自动调整像素点，而非默认的正方形
+    )
+    fig.colorbar(im, ax=ax)
+
     mass = mat.index.values
 
     cell_numb = list(cell_range.values())
@@ -54,10 +60,13 @@ def heatmap(
     for b in range(len(cell_numb)):
         new_cell_numb[b] = new_cell_numb[b] + int(cell_numb[b] / 2)
 
+    # draw lines between each group of cells
+    for i in range(len(new_cell_numb) - 1):
+        ax.axvline(x=new_cell_numb[i] + 0.5, color='black', linestyle='--', linewidth=0.5)
+
     ax.set_xlabel("Cell")  # 设置x轴标题
     ax.set_ylabel("Mass")  # 设置y轴标题
     ax.set_title(title)  # 设置图像标题
-    # fig.colorbar(ScalarMappable(cmap=color_map))  # 使用color bar
 
     ax.xaxis.set_major_locator(ticker.FixedLocator(new_cell_numb))  # 设置x轴坐标的定位
     ax.xaxis.set_major_formatter(ticker.FixedFormatter(cell_name))  # 设置x轴坐标的名称
